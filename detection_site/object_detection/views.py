@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -68,9 +70,50 @@ def add_image_feed(request):
     return render(request, 'object_detection/add_image_feed.html', {'form': form})
 
 
+def pathfinder(image):
+    """Функция создания пути для изображений
+    Получение имени файла, определение относительный путь к целевой директории пути 1 и 2,
+    Получение и Возвращение полного пути к файлу"""
+    filename = str(image)
+    filename = filename.split('/')[1]
+    relative_path = 'media/images/'
+    relative_path_2 = 'media/processed_images/processed_images'
+    file_path = os.path.join(os.getcwd(), relative_path, filename)
+    file_path_2 = os.path.join(os.getcwd(), relative_path_2, filename)
+    return file_path, file_path_2, filename
+
+
+def __del_img(image):
+    """Дополнительная функция для удаления фото из древа проекта
+    Проверка, является ли файлом"""
+    file_path, file_path_2, filename = pathfinder(image)
+    if os.path.isfile(file_path) and os.path.isfile(file_path_2):
+        os.remove(file_path)
+        os.remove(file_path_2)
+    elif os.path.isfile(file_path):
+        os.remove(file_path)
+
+
+def __del_duplicate_img(image):
+    """Дополнительная функция для удаления дубликата перед детекцией фото"""
+    _, file_path_2, filename = pathfinder(image)
+    if os.path.isfile(file_path_2):
+        os.remove(file_path_2)
+
+
 @login_required
 def delete_image(request, image_id):
+    """Функция удаления изображения,
+    с расширением, удаляет изображения из db и из директории проекта"""
     image = get_object_or_404(ImageFeed, id=image_id, user=request.user)  # Ensuring only the owner can delete
+    __del_img(image)
+
+    DetectionHistory.objects.filter(
+        user=request.user,
+        image=image.image,
+        processed_image=image.processed_image
+    ).update(is_deleted=True)
+
     image.delete()
     return redirect('object_detection:dashboard')
 
