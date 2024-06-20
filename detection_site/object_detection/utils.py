@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 from django.core.files.base import ContentFile
-from .models import ImageFeed, DetectedObject
-
+from .models import ImageFeed, DetectedObject, DetectionHistory
 
 VOC_LABELS = [
     "background", "aeroplane", "bicycle", "bird", "boat", "bottle",
@@ -10,8 +9,6 @@ VOC_LABELS = [
     "dog", "horse", "motorbike", "person", "pottedplant",
     "sheep", "sofa", "train", "tvmonitor"
 ]
-
-
 
 
 def process_image(image_feed_id):
@@ -34,6 +31,7 @@ def process_image(image_feed_id):
         net.setInput(blob)
         detections = net.forward()
 
+        detected_objects = []
         for i in range(detections.shape[2]):
             confidence = detections[0, 0, i, 2]
             if confidence > 0.6:
@@ -45,17 +43,25 @@ def process_image(image_feed_id):
                 label = f"{class_label}: {confidence:.2f}"
                 cv2.putText(img, label, (startX+5, startY + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                DetectedObject.objects.create(
+                detected_object = DetectedObject.objects.create(
                     image_feed=image_feed,
                     object_type=class_label,
                     location=f"{startX},{startY},{endX},{endY}",
                     confidence=float(confidence)
                 )
+                detected_objects.append(detected_object)
 
         result, encoded_img = cv2.imencode('.jpg', img)
         if result:
             content = ContentFile(encoded_img.tobytes(), f'processed_{image_feed.image.name}')
             image_feed.processed_image.save(content.name, content, save=True)
+
+        DetectionHistory.objects.create(
+            user=image_feed.user,
+            image=image_feed.image,
+            processed_image=image_feed.processed_image,
+            detected_objects=', '.join([obj.object_type for obj in detected_objects])
+        )
 
         return True
 

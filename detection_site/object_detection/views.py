@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import ImageFeed
+from .models import ImageFeed, DetectionHistory
 from .utils import process_image
 from .forms import ImageFeedForm
 
@@ -67,8 +67,15 @@ def add_image_feed(request):
         form = ImageFeedForm()
     return render(request, 'object_detection/add_image_feed.html', {'form': form})
 
+
 @login_required
 def delete_image(request, image_id):
     image = get_object_or_404(ImageFeed, id=image_id, user=request.user)  # Ensuring only the owner can delete
     image.delete()
     return redirect('object_detection:dashboard')
+
+
+@login_required
+def detection_history(request):
+    history = DetectionHistory.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'object_detection/detection_history.html', {'history': history})
