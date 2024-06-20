@@ -1,9 +1,10 @@
 """
-WSGI config for detection_site project.
+WSGI-конфигурация для проекта detection_site.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
+Этот файл предоставляет WSGI-вызываемый объект в качестве переменной уровня модуля
+с именем «application».
 
-For more information on this file, see
+Дополнительную информацию о данном файле можно найти по следующему адресу:
 https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/
 """
 

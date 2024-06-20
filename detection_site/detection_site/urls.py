@@ -1,18 +1,17 @@
 """
-URL configuration for detection_site project.
+URL-конфигурация для проекта Django.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+Этот модуль определяет URL-шаблоны для проекта Django, включая интерфейс администратора,
+приложение object_detection и URL для статических медиафайлов.
+
+URL-шаблоны:
+    - '/admin/': URL для интерфейса администратора Django.
+    - '/object_detection/': URL-шаблоны для приложения object_detection.
+    - '/': Перенаправляет на URL '/object_detection/'.
+    - URL-шаблоны для медиафайлов на основе settings.MEDIA_URL и settings.MEDIA_ROOT.
+
+Для получения дополнительной информации о конфигурации URL в Django посетите:
+https://docs.djangoproject.com/en/4.0/topics/http/urls/
 """
 from django.contrib import admin
 from django.urls import path, include

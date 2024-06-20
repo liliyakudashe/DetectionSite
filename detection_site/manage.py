@@ -1,11 +1,19 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Утилита командной строки Django для административных задач."""
 import os
 import sys
 
 
 def main():
-    """Run administrative tasks."""
+    """Основная функция для запуска административных задач.
+
+    Устанавливает переменную окружения 'DJANGO_SETTINGS_MODULE' на 'detection_site.settings'
+    и вызывает выполнение командной строки Django.
+
+    Исключения:
+        ImportError: Возникает, если Django не удалось импортировать. Проверьте, что Django
+        установлен и доступен через переменную окружения PYTHONPATH. Убедитесь также, что
+        активирована виртуальная среда."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'detection_site.settings')
     try:
         from django.core.management import execute_from_command_line
